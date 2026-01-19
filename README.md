@@ -1,5 +1,7 @@
 # ALPR from Scratch
 
+![License Plate Detection Result](Data/img/bbox_result.jpg)
+
 This repository is a self-learning, step-by-step series on building a License Plate Recognition pipeline from scratch.
 
 ## Learning Goals
