@@ -24,10 +24,16 @@ This project uses YOLOv8 to detect license plates in images and automatically cr
 ### 📸 Example Results
 
 **Input Image:**
-![Input Sample](examples/input_sample.png)
+
+<div align="center">
+  <img src="examples/input_sample.png" alt="Input Sample" style="max-width: 800px; width: 100%; height: auto;">
+</div>
 
 **Detection Result (with bounding boxes):**
-![Debug Output](examples/output_debug.jpg)
+
+<div align="center">
+  <img src="examples/output_debug.jpg" alt="Debug Output" style="max-width: 800px; width: 100%; height: auto;">
+</div>
 
 **Cropped License Plates:**
 | Plate 1 | Plate 2 | Plate 3 | Plate 4 |
