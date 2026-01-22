@@ -228,6 +228,159 @@ DEBUG_DIR = "./outputs/debug"         # Output directory for debug images
 
 ---
 
+## 🐛 Debugging & Tips
+
+### Pausing Program Execution
+
+When debugging or inspecting results, you may want to pause the program execution. Here are several options:
+
+#### 1. Using `breakpoint()` (Recommended for Debugging)
+
+The `breakpoint()` function (Python 3.7+) enters the Python debugger (pdb), allowing you to:
+- Inspect variables and their values
+- Execute Python commands
+- Step through code line by line
+
+```python
+# In your code
+results = model(img)
+breakpoint()  # Program pauses here
+# Press 'c' to continue, 'q' to quit, 'h' for help
+```
+
+**Debugger commands:**
+- `c` or `continue` - Continue execution
+- `q` or `quit` - Exit debugger and program
+- `n` or `next` - Execute next line
+- `s` or `step` - Step into function calls
+- `p <variable>` - Print variable value
+- `h` or `help` - Show help
+
+#### 2. Using `input()` (Simple Pause)
+
+For a simple pause without debugger:
+
+```python
+# In your code
+results = model(img)
+input("Press Enter to continue...")  # Program waits for Enter key
+```
+
+#### 3. Using `sys.exit()` (Exit Completely)
+
+To exit the program completely:
+
+```python
+import sys
+# In your code
+sys.exit()  # Exits immediately, no continuation
+```
+
+#### 4. Using `os.system('pause')` (Windows Only)
+
+Windows-specific pause command:
+
+```python
+import os
+# In your code
+os.system('pause')  # Shows "Press any key to continue..."
+```
+
+### Understanding YOLOv8 Results Structure
+
+🧠 **Why `for r in results` even with a single image?**
+
+Even when you pass only **1 image**, YOLOv8 **always returns a list-like results object**. This is by design!
+
+#### The Design Philosophy
+
+YOLOv8 uses a **batch-first mindset** in its API design. Whether you process:
+- 1 image
+- 10 images (batch)
+- 1 folder
+- 1 video
+- Webcam stream
+
+→ **The API is unified**: it always returns a list-like structure.
+
+#### Example: Inspect the Results Structure
+
+Add this to see the actual structure:
+
+```python
+results = model(img)
+
+print(type(results))    # <class 'list'>
+print(len(results))     # 1
+print(type(results[0])) # <class 'ultralytics.yolo.engine.results.Results'>
+```
+
+**Output:**
+```
+<class 'list'>
+1
+<class 'ultralytics.yolo.engine.results.Results'>
+```
+
+#### Why This Design?
+
+Even with **1 image**, YOLOv8 returns:
+```python
+results = [Result(img1)]  # List containing 1 Results object
+```
+
+**Not:**
+```python
+results = Result(img1)  # Single object (inconsistent API)
+```
+
+**Benefits:**
+- ✅ **Unified API** - Same code works for single image, batch, folder, video
+- ✅ **Pipeline consistency** - YOLOv8 processes everything as batches internally
+- ✅ **Developer-friendly** - No need to remember different return types
+- ✅ **Future-proof** - Easy to extend to batch processing
+
+#### Practical Usage
+
+```python
+# Works the same way for:
+results = model(img)                    # Single image → [Result]
+results = model([img1, img2, img3])     # Batch → [Result, Result, Result]
+results = model("folder/")              # Folder → [Result, Result, ...]
+results = model("video.mp4")            # Video → [Result, Result, ...]
+
+# Always iterate, even for single image:
+for r in results:  # ← Always use this pattern
+    boxes = r.boxes
+    # Process each result
+```
+
+### Example: Inspecting Detection Results
+
+```python
+# After detection
+results = model(img)
+
+# Inspect structure
+print(type(results))    # <class 'list'>
+print(len(results))     # 1 (for single image)
+print(type(results[0])) # <class 'ultralytics.yolo.engine.results.Results'>
+
+# Option 1: Debugger (best for inspection)
+breakpoint()
+
+# Option 2: Simple pause
+# input("Press Enter to continue...")
+
+# Always iterate, even for single image
+for r in results:
+    # Process results
+    boxes = r.boxes
+    # ...
+```
+
+---
+
 ## 🔁 Export / Rebuild Environment (For Thesis & Reproducibility)
 
 ### Export Environment:
@@ -235,8 +388,10 @@ DEBUG_DIR = "./outputs/debug"         # Output directory for debug images
 Save your environment configuration for sharing or reproducibility:
 
 ```bash
-conda env export > environment.yml
+conda env export --no-build > environment.yml
 ```
+
+> **Note:** The `--no-build` flag excludes build information, making the file smaller and more portable across different platforms.
 
 ### Rebuild Environment:
 
